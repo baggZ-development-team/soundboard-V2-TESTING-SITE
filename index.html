@@ -23,7 +23,8 @@
         background-color: white;
         border-radius: 5px;
         margin: 2px;
-        border-width: 0px;
+        border-width: 3px;
+        border-color: linear-gradient(30deg, #008cff, #00e1ff);
         cursor: pointer;
     }
 
@@ -55,22 +56,23 @@
     <div id="buttons"></div>
 
     <script>
-         (async () => {
-      const res = await fetch("Audios.json");
-      const data = await res.json();
+        const api = "https://api.github.com/repos/baggZ-development-team/soundboard-V2/contents/audio";
 
-      const container = document.getElementById("buttons");
+        fetch(api)
+            .then(res => res.json())
+            .then(files => {
+            files
+                .filter(f => f.name.endsWith(".mp3"))
+                .forEach(f => {
+                const btn = document.createElement("button");
+                btn.textContent = f.name.split(".")[[0].replace(/[_-]/g, " ")];
 
-      data.files.forEach(file => {
-        const btn = document.createElement("button");
-        btn.textContent = file.split(".")[0].replace(/[_-]/g, " ");
+                const audio = new Audio(f.download_url);
+                btn.onclick = () => audio.play();
 
-        const audio = new Audio(`audio/${file}`);
-        btn.onclick = () => audio.play();
-
-        container.appendChild(btn);
-      });
-    })();
+                document.getElementById("buttons").appendChild(btn);
+                });
+            });
     </script>
 </body>
 </html>
