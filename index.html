@@ -55,23 +55,22 @@
     <div id="buttons"></div>
 
     <script>
-        const audios = "Audios.json";
+         (async () => {
+      const res = await fetch("Audios.json");
+      const data = await res.json();
 
-        fetch(audios)
-            .then(res => res.json())
-            .then(files => {
-            files
-                .filter(f => f.name.endsWith(".mp3"))
-                .forEach(f => {
-                const btn = document.createElement("button");
-                btn.textContent = f.name.split(".")[[0].replace(/[_-]/g, " ")];
+      const container = document.getElementById("buttons");
 
-                const audio = new Audio(f.download_url);
-                btn.onclick = () => audio.play();
+      data.files.forEach(file => {
+        const btn = document.createElement("button");
+        btn.textContent = file;
 
-                document.getElementById("buttons").appendChild(btn);
-                });
-            });
+        const audio = new Audio(`audio/${file}`);
+        btn.onclick = () => audio.play();
+
+        container.appendChild(btn);
+      });
+    })();
     </script>
 </body>
 </html>
