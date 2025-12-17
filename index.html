@@ -1,8 +1,6 @@
 <!DOCTYPE html>
 <html lang="en-GB">
 <head>
-    //don't touch//
-    <!-- Google tag (gtag.js) -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-FWZLJYXDTE"></script>
 <script>
   window.dataLayer = window.dataLayer || [];
@@ -41,17 +39,19 @@
         overflow: hidden;
     }
     #random-name {
-        color: white; /* Make the name white */
-        font-size: 1.5em; /* Adjust the font size if needed */
-        text-align: center; /* Center align the text */
-        margin-top: 10px; /* Add some margin from the heading */
+        color: white;
+        font-size: 1.5em;
+        text-align: center;
+        margin-top: 10px;
     }
     </style>
 </head>
 <body>
     <H1>baggZ Soundboard</H1>
 
-    <div id="buttons"></div>
+    <div id="buttons">
+        <h2 id="Loading">Loading...</h2>
+    </div>
 
     <script>
         const api = "https://api.github.com/repos/baggZ-development-team/soundboard-V2/contents/audio";
@@ -67,7 +67,8 @@
 
                 const audio = new Audio(f.download_url);
                 btn.onclick = () => audio.play();
-
+                
+                document.getElementById("Loading").remove();
                 document.getElementById("buttons").appendChild(btn);
                 });
             });
