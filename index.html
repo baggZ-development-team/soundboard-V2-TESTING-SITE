@@ -59,11 +59,11 @@
 
   document.addEventListener("keydown", (e) => {
   if (e.code === "Space" && urrentAudio) {
+      e.preventDefault();
       currentAudio.pause();
       currentAudio.currentTime = 0;
-      e.preventDefault();
-  }
-});
+      }
+    });
 })();
     </script>
 </body>
