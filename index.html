@@ -61,6 +61,7 @@
   if (e.code === "Space" && currentAudio) {
       currentAudio.pause();
       currentAudio.currentTime = 0;
+      e.preventDefault();
     }
   });
 })();
