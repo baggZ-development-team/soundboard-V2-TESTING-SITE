@@ -12,55 +12,51 @@
 </script>
     <meta charset="utf-8" />
     <title>Soundboard</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,100..700;1,100..700&display=swap" rel="stylesheet">
-    <style>
-    button {
-        padding: 10px;
-        color: black;
-        background-color: white;
-        border-radius: 5px;
-        margin: 2px;
-        border-width: 0px;
-        cursor: pointer;
-    }
-
-    body, html {
-        background-color: rgb(5, 5, 5);
-        font-family: Roboto Mono;
-
-    }
-
-    h1, h2 {
-        color: white;
-    }
-    </style>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <H1>Soundboard</H1>
+    <h1>baggZ Soundboard</h1>
     <h2 id="loading">Loading...</h2>
 
-    <div id="buttons"></div>
+    <div id="buttons" display="none"></div>
 
     <script>
-         (async () => {
-      const res = await fetch("Audios.json");
-      const data = await res.json();
+        (async () => {
+    const res = await fetch("Audios.json");
+    const data = await res.json();
 
-      const container = document.getElementById("buttons");
+    const container = document.getElementById("buttons");
+    const soundFiles = data.files;
 
-      data.files.forEach(file => {
+    let loadedCount = 0;
+    const sounds = {};
+
+    function checkAllLoaded() {
+        loadedCount++;
+        if (loadedCount === soundFiles.length) {
+            // All sounds are loaded
+            document.getElementById("loading").remove();
+            container.style.display = "block";
+        }
+    }
+
+    soundFiles.forEach(file => {
         const btn = document.createElement("button");
         btn.textContent = file.split(".")[0].replace(/[_-]/g, " ");
 
         const audio = new Audio(`audio/${file}`);
-        btn.onclick = () => audio.play();
+        audio.preload = "auto";
 
+        // Wait until the sound can play through
+        audio.addEventListener("canplaythrough", checkAllLoaded, { once: true });
+        audio.addEventListener("error", checkAllLoaded, { once: true }); // fail-safe
+
+        btn.onclick = () => audio.play();
         container.appendChild(btn);
-      });
-        document.getElementById("loading").remove();
-    })();
+
+        sounds[file] = audio;
+    });
+})();
     </script>
 </body>
 </html>
