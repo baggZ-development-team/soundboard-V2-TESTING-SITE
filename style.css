@@ -1,28 +1,88 @@
-@import url('https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,100..700;1,100..700&display=swap');
-
-button {
-    padding: 10px;
-    color: rgb(255, 255, 255);
-    background-color: rgba(255, 255, 255, 0.093);
-    border-radius: 5px;
-    margin: 2px;
-    border-width: 0px;
-    cursor: pointer;
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-}
-
+/* Basic page styles */
 body {
-    background: linear-gradient(90deg, #3e4e93, #6d3c84);
-    font-family: Roboto Mono, "monospace";
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+  margin: 24px;
+  color: #111;
+  background: #f7f7f8;
 }
 
-h1, h3 {
-    color: white;
+h1 {
+  margin: 0 0 8px 0;
+  font-size: 28px;
+}
+
+h3#loading {
+  margin: 0 0 18px 0;
+  font-weight: 400;
+  color: #666;
+}
+
+/* Controls (search + stop) */
+.controls {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+#search {
+  flex: 1 1 320px;
+  padding: 8px 12px;
+  font-size: 16px;
+  border-radius: 6px;
+  border: 1px solid #d0d0d4;
+  background: white;
+  outline: none;
+  box-shadow: 0 1px 0 rgba(0,0,0,0.02) inset;
+}
+
+#search:focus {
+  border-color: #7aa7ff;
+  box-shadow: 0 0 0 3px rgba(122,167,255,0.12);
 }
 
 #stopBtn {
-    margin-bottom: 10px;
-    font-size: larger;
-    background-color: rgba(255, 55, 55, 0.586);
+  padding: 8px 12px;
+  font-size: 14px;
+  border-radius: 6px;
+  border: 1px solid #c4c4c8;
+  background: #fff;
+  cursor: pointer;
+}
+
+#stopBtn:hover {
+  background: #fafbff;
+}
+
+/* Buttons grid */
+.buttons {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 8px;
+  margin-top: 6px;
+}
+
+.sound-btn {
+  padding: 10px 12px;
+  font-size: 15px;
+  border-radius: 8px;
+  border: 1px solid #e0e0e3;
+  background: linear-gradient(180deg, #fff, #fbfbfd);
+  cursor: pointer;
+  text-align: left;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.sound-btn:hover {
+  background: linear-gradient(180deg, #fff, #f2f7ff);
+  border-color: #d0e1ff;
+}
+
+/* No results */
+.no-results {
+  margin-top: 12px;
+  color: #888;
+  font-style: italic;
 }
