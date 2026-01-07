@@ -64,7 +64,7 @@
       audio.play();
     };
 
-
+    // Allow Enter/Space when focused to play
     btn.addEventListener("keydown", (e) => {
       if (e.key === "Enter" || e.key === " ") {
         e.preventDefault();
@@ -74,6 +74,7 @@
 
     return btn;
   }
+
 
   function renderButtons(filterText = "") {
     const filter = filterText.trim().toLowerCase();
@@ -94,20 +95,21 @@
     }
   }
 
-
+  // Initial render
   renderButtons();
   loading.style.display = "none";
 
+
   let debounceTimer = null;
   searchInput.addEventListener("input", (e) => {
- 
+    // small debounce for smoother typing
     if (debounceTimer) clearTimeout(debounceTimer);
     debounceTimer = setTimeout(() => {
       renderButtons(e.target.value);
     }, 120);
   });
 
-
+  // Stop button
   stopBtn.onclick = () => {
     if (currentAudio) {
       currentAudio.pause();
@@ -116,7 +118,6 @@
   };
 
 
- 
 })();
     </script>
 </body>
