@@ -75,7 +75,7 @@
     return btn;
   }
 
-
+  // Render the buttons. filterText is case-insensitive and matched against the label.
   function renderButtons(filterText = "") {
     const filter = filterText.trim().toLowerCase();
     container.innerHTML = "";
@@ -99,7 +99,7 @@
   renderButtons();
   loading.style.display = "none";
 
-
+  // Search input: immediate filtering (debounce optional)
   let debounceTimer = null;
   searchInput.addEventListener("input", (e) => {
     // small debounce for smoother typing
@@ -117,7 +117,8 @@
     }
   };
 
-
+  // Optional: focus search on load for quick typing
+  searchInput.focus();
 })();
     </script>
 </body>
