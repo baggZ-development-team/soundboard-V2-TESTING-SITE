@@ -18,9 +18,13 @@
     <h1>baggZ Soundboard</h1>
     <h3 id="loading">If a sound isn't working wait a second.</h3>
 
-    <button id="stopBtn">Stop</button>
+    <div class="controls">
+      <input id="search" type="search" placeholder="Search sounds..." aria-label="Search sounds">
+      <button id="stopBtn">Stop</button>
+    </div>
 
-    <div id="buttons" display="none"></div>
+    <div id="buttons" class="buttons"></div>
+    <div id="noResults" class="no-results" style="display:none;">No sounds found.</div>
 
     <script>
         (async () => {
@@ -29,15 +33,28 @@
 
   const stopBtn = document.getElementById("stopBtn");
   const container = document.getElementById("buttons");
+  const searchInput = document.getElementById("search");
+  const loading = document.getElementById("loading");
+  const noResults = document.getElementById("noResults");
 
   let currentAudio = null;
+  const files = Array.isArray(data.files) ? data.files.slice() : [];
 
-  data.files.forEach(file => {
+  // Utility: friendly label from filename
+  function labelFromFile(file) {
+    return file.split(".")[0].replace(/[_-]/g, " ");
+  }
+
+  // Create button element for a file
+  function createButton(file) {
     const btn = document.createElement("button");
-    btn.textContent = file.split(".")[0].replace(/[_-]/g, " ");
+    btn.className = "sound-btn";
+    const label = labelFromFile(file);
+    btn.textContent = label;
 
     const audio = new Audio(`audio/${file}`);
-    
+    audio.preload = "auto";
+
     btn.onclick = () => {
       if (currentAudio && currentAudio !== audio) {
         currentAudio.pause();
@@ -47,15 +64,61 @@
       audio.play();
     };
 
-    container.appendChild(btn);
+    // Allow Enter/Space when focused to play
+    btn.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" || e.key === " ") {
+        e.preventDefault();
+        btn.click();
+      }
+    });
+
+    return btn;
+  }
+
+  // Render the buttons. filterText is case-insensitive and matched against the label.
+  function renderButtons(filterText = "") {
+    const filter = filterText.trim().toLowerCase();
+    container.innerHTML = "";
+
+    const matched = files.filter(file => {
+      const label = labelFromFile(file).toLowerCase();
+      return label.includes(filter);
+    });
+
+    if (matched.length === 0) {
+      noResults.style.display = "block";
+    } else {
+      noResults.style.display = "none";
+      matched.forEach(file => {
+        container.appendChild(createButton(file));
+      });
+    }
+  }
+
+  // Initial render
+  renderButtons();
+  loading.style.display = "none";
+
+  // Search input: immediate filtering (debounce optional)
+  let debounceTimer = null;
+  searchInput.addEventListener("input", (e) => {
+    // small debounce for smoother typing
+    if (debounceTimer) clearTimeout(debounceTimer);
+    debounceTimer = setTimeout(() => {
+      renderButtons(e.target.value);
+    }, 120);
   });
 
+  // Stop button
   stopBtn.onclick = () => {
     if (currentAudio) {
       currentAudio.pause();
       currentAudio.currentTime = 0;
     }
   };
+
+  // Optional: focus search on load for quick typing
+  searchInput.focus();
 })();
     </script>
 </body>
