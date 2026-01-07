@@ -64,7 +64,7 @@
       audio.play();
     };
 
-    // Allow Enter/Space when focused to play
+
     btn.addEventListener("keydown", (e) => {
       if (e.key === "Enter" || e.key === " ") {
         e.preventDefault();
@@ -75,7 +75,6 @@
     return btn;
   }
 
-  // Render the buttons. filterText is case-insensitive and matched against the label.
   function renderButtons(filterText = "") {
     const filter = filterText.trim().toLowerCase();
     container.innerHTML = "";
@@ -95,21 +94,20 @@
     }
   }
 
-  // Initial render
+
   renderButtons();
   loading.style.display = "none";
 
-  // Search input: immediate filtering (debounce optional)
   let debounceTimer = null;
   searchInput.addEventListener("input", (e) => {
-    // small debounce for smoother typing
+ 
     if (debounceTimer) clearTimeout(debounceTimer);
     debounceTimer = setTimeout(() => {
       renderButtons(e.target.value);
     }, 120);
   });
 
-  // Stop button
+
   stopBtn.onclick = () => {
     if (currentAudio) {
       currentAudio.pause();
@@ -117,8 +115,8 @@
     }
   };
 
-  // Optional: focus search on load for quick typing
-  searchInput.focus();
+
+ 
 })();
     </script>
 </body>
