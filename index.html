@@ -1,131 +1,135 @@
-<!doctype html>
-<html lang="en">
+<!DOCTYPE html>
+<html lang="en-GB">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>Soundboard V2 — Testing Site</title>
-  <link rel="stylesheet" href="style.css">
+    <!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-FWZLJYXDTE"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-FWZLJYXDTE');
+</script>
+    <meta charset="utf-8" />
+    <title>Soundboard</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vanta@latest/dist/vanta.fog.min.js"></script>
 </head>
-<body>
-  <div id="vanta-bg">
-    <header class="site-header">
-      <h1>Soundboard V2</h1>
-      <p class="subtitle">Vanta fog background with vibrant randomized colors</p>
-    </header>
+<body id="vanta-background">
+    <h1>baggZ Soundboard</h1>
+    <h3 id="loading">If a sound isn't working wait a second.</h3>
 
-    <main class="container" aria-live="polite">
-      <section class="controls">
-        <button class="sound-btn" data-sound="kick">Kick</button>
-        <button class="sound-btn" data-sound="snare">Snare</button>
-        <button class="sound-btn" data-sound="hat">Hi-Hat</button>
-        <button class="sound-btn" data-sound="fx">FX</button>
-      </section>
+    <div id="search-container">
+        <input type="text" id="searchBar" placeholder="Search sounds...">
+    </div>
 
-      <section class="info">
-        <p>Click a button to play a demo tone. Colors are randomized on load — reload to get a new palette.</p>
-      </section>
-    </main>
+    <button id="stopBtn">Stop</button>
 
-    <footer class="site-footer">
-      <small>Generated palette applied to UI and Vanta Fog effect.</small>
-    </footer>
-  </div>
+    <div id="buttons" display="none"></div>
 
-  <!-- Minimal demo audio (sine tones) will be generated with WebAudio; no external files required -->
+    <script>
+        // Vibrant color palette
+        const vibrantColors = [
+            0xff006e, // Hot Pink
+            0x8338ec, // Purple
+            0x3a86ff, // Bright Blue
+            0x06ffa5, // Cyan
+            0xffbe0b, // Yellow
+            0xfb5607, // Orange
+            0xff006e, // Magenta
+            0x8338ec, // Violet
+            0x06ffa5, // Aqua
+            0xff006e, // Pink
+            0x3a86ff, // Electric Blue
+            0xffbe0b, // Gold
+            0xfb5607, // Red Orange
+            0x8338ec, // Indigo
+            0x06ffa5, // Mint
+        ];
 
-  <!-- Three.js and Vanta Fog (CDN) -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r121/three.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/vanta/0.5.21/vanta.fog.min.js"></script>
+        // Initialize Vanta Fog with random vibrant colors
+        function initVanta() {
+            const baseColor = vibrantColors[Math.floor(Math.random() * vibrantColors.length)];
+            const highlightColor = vibrantColors[Math.floor(Math.random() * vibrantColors.length)];
+            const midColor = vibrantColors[Math.floor(Math.random() * vibrantColors.length)];
 
-  <script>
-    // Utility: convert HSL to hex
-    function hslToHex(h, s, l){
-      s /= 100; l /= 100;
-      const k = n => (n + h/30) % 12;
-      const a = s * Math.min(l, 1 - l);
-      const f = n => {
-        const color = l - a * Math.max(-1, Math.min(k(n) - 3, Math.min(9 - k(n), 1)));
-        return Math.round(255 * color).toString(16).padStart(2, '0');
-      };
-      return `#${f(0)}${f(8)}${f(4)}`;
-    }
+            VANTA.FOG({
+                el: "#vanta-background",
+                mouseControls: true,
+                touchControls: true,
+                gyroControls: false,
+                minHeight: 200.00,
+                minWidth: 200.00,
+                highlightColor: highlightColor,
+                baseColor: baseColor,
+                midColor: midColor,
+                blurFactor: 0.47,
+                speed: 1.5,
+                zoom: 0.9
+            });
+        }
 
-    // Generate a vibrant palette and apply to document CSS variables
-    function applyRandomVibrantPalette(){
-      const baseHue = Math.floor(Math.random() * 360);
-      const hues = [baseHue, (baseHue + 40) % 360, (baseHue + 200) % 360];
-      const colors = {
-        '--accent': hslToHex(hues[0], 85, 50),
-        '--accent-2': hslToHex(hues[1], 88, 48),
-        '--accent-3': hslToHex(hues[2], 90, 45),
-        '--fg': '#111114',
-        '--glass': 'rgba(255,255,255,0.06)'
-      };
-      for(const k in colors) document.documentElement.style.setProperty(k, colors[k]);
-      return colors;
-    }
+        // Initialize Vanta after page load
+        window.addEventListener('load', initVanta);
 
-    // Initialize Vanta Fog with colors from palette
-    let vantaEffect = null;
-    function initVantaWithPalette(colors){
-      // Accepts color-ish values (hex) for baseColor / highlightColor / midColor
-      if(window.VANTA && window.VANTA.FOG){
-        if(vantaEffect) vantaEffect.destroy();
-        vantaEffect = VANTA.FOG({
-          el: '#vanta-bg',
-          mouseControls: true,
-          touchControls: true,
-          gyroControls: false,
-          minHeight: 200.00,
-          minWidth: 200.00,
-          highlightColor: colors['--accent'],
-          midColor: colors['--accent-2'],
-          baseColor: colors['--accent-3'],
-          speed: 1.0,
-          zoom: 1.2
-        });
-      } else {
-        console.warn('Vanta.FOG not available yet');
-      }
-    }
+        // Search functionality
+        (async () => {
+            const res = await fetch("Audios.json");
+            const data = await res.json();
 
-    // Lightweight WebAudio demo generator for button clicks
-    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-    function playTone(freq, duration = 0.18){
-      const o = audioCtx.createOscillator();
-      const g = audioCtx.createGain();
-      o.type = 'sawtooth';
-      o.frequency.setValueAtTime(freq, audioCtx.currentTime);
-      g.gain.setValueAtTime(0.0001, audioCtx.currentTime);
-      g.gain.exponentialRampToValueAtTime(0.16, audioCtx.currentTime + 0.01);
-      g.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + duration);
-      o.connect(g); g.connect(audioCtx.destination);
-      o.start(); o.stop(audioCtx.currentTime + duration + 0.02);
-    }
+            const stopBtn = document.getElementById("stopBtn");
+            const container = document.getElementById("buttons");
+            const searchBar = document.getElementById("searchBar");
+            const loading = document.getElementById("loading");
 
-    document.addEventListener('DOMContentLoaded', () => {
-      const palette = applyRandomVibrantPalette();
-      // Delay Vanta init slightly to ensure scripts load
-      const tryInit = () => { if(window.VANTA && window.VANTA.FOG){ initVantaWithPalette(palette);} else setTimeout(tryInit, 150); };
-      tryInit();
+            let currentAudio = null;
+            let allButtons = [];
 
-      document.querySelectorAll('.sound-btn').forEach(btn => {
-        btn.addEventListener('click', async (e) => {
-          // Resume audio context on user gesture (for browsers that require it)
-          if(audioCtx.state === 'suspended') await audioCtx.resume();
-          const name = btn.dataset.sound;
-          const freqs = { kick: 98, snare: 220, hat: 4000, fx: 620 };
-          playTone(freqs[name] || 440);
+            // Create buttons
+            data.files.forEach(file => {
+                const btn = document.createElement("button");
+                const displayName = file.split(".")[0].replace(/[_-]/g, " ");
+                btn.textContent = displayName;
+                btn.dataset.searchText = displayName.toLowerCase();
 
-          // Quick press visual
-          btn.classList.add('active');
-          setTimeout(()=>btn.classList.remove('active'), 220);
-        });
-      });
-    });
+                const audio = new Audio(`audio/${file}`);
+                
+                btn.onclick = () => {
+                    if (currentAudio && currentAudio !== audio) {
+                        currentAudio.pause();
+                        currentAudio.currentTime = 0;
+                    }
+                    currentAudio = audio;
+                    audio.play();
+                };
 
-    // Clean up Vanta on page unload
-    window.addEventListener('beforeunload', () => { if(vantaEffect) vantaEffect.destroy(); });
-  </script>
+                container.appendChild(btn);
+                allButtons.push(btn);
+            });
+
+            // Hide loading message after buttons are created
+            loading.style.display = "none";
+
+            // Search functionality
+            searchBar.addEventListener("input", (e) => {
+                const searchTerm = e.target.value.toLowerCase();
+                allButtons.forEach(btn => {
+                    if (btn.dataset.searchText.includes(searchTerm)) {
+                        btn.style.display = "inline-block";
+                    } else {
+                        btn.style.display = "none";
+                    }
+                });
+            });
+
+            stopBtn.onclick = () => {
+                if (currentAudio) {
+                    currentAudio.pause();
+                    currentAudio.currentTime = 0;
+                }
+            };
+        })();
+    </script>
 </body>
 </html>
