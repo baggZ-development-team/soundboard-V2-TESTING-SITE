@@ -22,23 +22,77 @@ body > * {
     z-index: 1;
 }
 
-button {
-    padding: 10px;
-    color: rgb(255, 255, 255);
-    background-color: rgba(255, 255, 255, 0.093);
-    border-radius: 2rem;
-    margin: 2px;
-    border-width: 0px;
-    cursor: pointer;
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-    transition: background-color 0.2s;
-    position: relative;
-    overflow: hidden;
+/* LIQUID GLASS BUTTON STYLES */
+:root {
+  --glass-radius: 16px;
+
+  --shadow-offset: 0;
+  --shadow-blur: 14px;
+  --shadow-spread: -6px;
+  --shadow-color: rgba(255, 255, 255, 0.65);
+
+  --tint-color: 255, 255, 255;
+  --tint-opacity: 0.35;
+
+  --frost-blur: 3px;
+
+  --distortion-strength: 60;
 }
 
-button:hover {
-    background-color: rgba(255, 255, 255, 0.2);
+.glass-button {
+  position: relative;
+  padding: 14px 26px;
+  border-radius: var(--glass-radius);
+  border: none;
+  background: transparent;
+  color: #fff;
+  font-size: 15px;
+  font-weight: 500;
+  cursor: pointer;
+  isolation: isolate;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+  overflow: hidden;
+  margin: 2px;
+  font-family: Roboto Mono, "monospace";
+  transition: transform 0.2s;
+}
+
+.glass-button::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  z-index: 0;
+  box-shadow:
+    inset var(--shadow-offset) var(--shadow-offset)
+    var(--shadow-blur) var(--shadow-spread)
+    var(--shadow-color);
+  background-color: rgba(var(--tint-color), var(--tint-opacity));
+}
+
+.glass-button::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  z-index: -1;
+  backdrop-filter: blur(var(--frost-blur));
+  -webkit-backdrop-filter: blur(var(--frost-blur));
+  filter: url(#glass-distortion);
+  -webkit-filter: url("#glass-distortion");
+}
+
+.glass-button span {
+  position: relative;
+  z-index: 1;
+}
+
+.glass-button:hover {
+  transform: translateY(-1px);
+}
+
+.glass-button:active {
+  transform: translateY(1px);
 }
 
 h1, h3 {
@@ -79,26 +133,13 @@ h1, h3 {
 #stopBtn {
     margin-bottom: 10px;
     font-size: larger;
-    background-color: rgba(255, 55, 55, 0.586);
 }
 
-#stopBtn:hover {
-    background-color: rgba(255, 55, 55, 0.8);
-}
-
-.glass::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(255, 255, 255, 0.1);
-    border-radius: 2rem;
-    backdrop-filter: blur(1px);
-    box-shadow: inset -10px -8px 0px -11px rgba(255, 255, 255, 1),
-                inset 0px -9px 0px -8px rgba(255, 255, 255, 1);
-    opacity: 0.6;
-    z-index: -1;
-    filter: blur(1px) drop-shadow(10px 4px 6px black) brightness(115%);
+/* Red-tinted glass for stop button */
+#stopBtn::before {
+    box-shadow:
+        inset var(--shadow-offset) var(--shadow-offset)
+        var(--shadow-blur) var(--shadow-spread)
+        rgba(255, 55, 55, 0.65);
+    background-color: rgba(255, 55, 55, 0.4);
 }
