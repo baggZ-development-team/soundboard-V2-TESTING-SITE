@@ -1,125 +1,131 @@
-<!DOCTYPE html>
-<html lang="en-GB">
+<!doctype html>
+<html lang="en">
 <head>
-    <!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-FWZLJYXDTE"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-
-  gtag('config', 'G-FWZLJYXDTE');
-</script>
-    <meta charset="utf-8" />
-    <title>Soundboard</title>
-    <link rel="stylesheet" href="style.css">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Soundboard V2 — Testing Site</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <h1>baggZ Soundboard</h1>
-    <h3 id="loading">If a sound isn't working wait a second.</h3>
+  <div id="vanta-bg">
+    <header class="site-header">
+      <h1>Soundboard V2</h1>
+      <p class="subtitle">Vanta fog background with vibrant randomized colors</p>
+    </header>
 
-    <div class="controls">
-      <input id="search" type="search" placeholder="Search sounds..." aria-label="Search sounds">
-      <button id="stopBtn">Stop</button>
-    </div>
+    <main class="container" aria-live="polite">
+      <section class="controls">
+        <button class="sound-btn" data-sound="kick">Kick</button>
+        <button class="sound-btn" data-sound="snare">Snare</button>
+        <button class="sound-btn" data-sound="hat">Hi-Hat</button>
+        <button class="sound-btn" data-sound="fx">FX</button>
+      </section>
 
-    <div id="buttons" class="buttons"></div>
-    <div id="noResults" class="no-results" style="display:none;">No sounds found.</div>
+      <section class="info">
+        <p>Click a button to play a demo tone. Colors are randomized on load — reload to get a new palette.</p>
+      </section>
+    </main>
 
-    <script>
-        (async () => {
-  const res = await fetch("Audios.json");
-  const data = await res.json();
+    <footer class="site-footer">
+      <small>Generated palette applied to UI and Vanta Fog effect.</small>
+    </footer>
+  </div>
 
-  const stopBtn = document.getElementById("stopBtn");
-  const container = document.getElementById("buttons");
-  const searchInput = document.getElementById("search");
-  const loading = document.getElementById("loading");
-  const noResults = document.getElementById("noResults");
+  <!-- Minimal demo audio (sine tones) will be generated with WebAudio; no external files required -->
 
-  let currentAudio = null;
-  const files = Array.isArray(data.files) ? data.files.slice() : [];
+  <!-- Three.js and Vanta Fog (CDN) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r121/three.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/vanta/0.5.21/vanta.fog.min.js"></script>
 
-  // Utility: friendly label from filename
-  function labelFromFile(file) {
-    return file.split(".")[0].replace(/[_-]/g, " ");
-  }
+  <script>
+    // Utility: convert HSL to hex
+    function hslToHex(h, s, l){
+      s /= 100; l /= 100;
+      const k = n => (n + h/30) % 12;
+      const a = s * Math.min(l, 1 - l);
+      const f = n => {
+        const color = l - a * Math.max(-1, Math.min(k(n) - 3, Math.min(9 - k(n), 1)));
+        return Math.round(255 * color).toString(16).padStart(2, '0');
+      };
+      return `#${f(0)}${f(8)}${f(4)}`;
+    }
 
-  // Create button element for a file
-  function createButton(file) {
-    const btn = document.createElement("button");
-    btn.className = "sound-btn";
-    const label = labelFromFile(file);
-    btn.textContent = label;
+    // Generate a vibrant palette and apply to document CSS variables
+    function applyRandomVibrantPalette(){
+      const baseHue = Math.floor(Math.random() * 360);
+      const hues = [baseHue, (baseHue + 40) % 360, (baseHue + 200) % 360];
+      const colors = {
+        '--accent': hslToHex(hues[0], 85, 50),
+        '--accent-2': hslToHex(hues[1], 88, 48),
+        '--accent-3': hslToHex(hues[2], 90, 45),
+        '--fg': '#111114',
+        '--glass': 'rgba(255,255,255,0.06)'
+      };
+      for(const k in colors) document.documentElement.style.setProperty(k, colors[k]);
+      return colors;
+    }
 
-    const audio = new Audio(`audio/${file}`);
-    audio.preload = "auto";
-
-    btn.onclick = () => {
-      if (currentAudio && currentAudio !== audio) {
-        currentAudio.pause();
-        currentAudio.currentTime = 0;
+    // Initialize Vanta Fog with colors from palette
+    let vantaEffect = null;
+    function initVantaWithPalette(colors){
+      // Accepts color-ish values (hex) for baseColor / highlightColor / midColor
+      if(window.VANTA && window.VANTA.FOG){
+        if(vantaEffect) vantaEffect.destroy();
+        vantaEffect = VANTA.FOG({
+          el: '#vanta-bg',
+          mouseControls: true,
+          touchControls: true,
+          gyroControls: false,
+          minHeight: 200.00,
+          minWidth: 200.00,
+          highlightColor: colors['--accent'],
+          midColor: colors['--accent-2'],
+          baseColor: colors['--accent-3'],
+          speed: 1.0,
+          zoom: 1.2
+        });
+      } else {
+        console.warn('Vanta.FOG not available yet');
       }
-      currentAudio = audio;
-      audio.play();
-    };
+    }
 
-    // Allow Enter/Space when focused to play
-    btn.addEventListener("keydown", (e) => {
-      if (e.key === "Enter" || e.key === " ") {
-        e.preventDefault();
-        btn.click();
-      }
-    });
+    // Lightweight WebAudio demo generator for button clicks
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    function playTone(freq, duration = 0.18){
+      const o = audioCtx.createOscillator();
+      const g = audioCtx.createGain();
+      o.type = 'sawtooth';
+      o.frequency.setValueAtTime(freq, audioCtx.currentTime);
+      g.gain.setValueAtTime(0.0001, audioCtx.currentTime);
+      g.gain.exponentialRampToValueAtTime(0.16, audioCtx.currentTime + 0.01);
+      g.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + duration);
+      o.connect(g); g.connect(audioCtx.destination);
+      o.start(); o.stop(audioCtx.currentTime + duration + 0.02);
+    }
 
-    return btn;
-  }
+    document.addEventListener('DOMContentLoaded', () => {
+      const palette = applyRandomVibrantPalette();
+      // Delay Vanta init slightly to ensure scripts load
+      const tryInit = () => { if(window.VANTA && window.VANTA.FOG){ initVantaWithPalette(palette);} else setTimeout(tryInit, 150); };
+      tryInit();
 
-  // Render the buttons. filterText is case-insensitive and matched against the label.
-  function renderButtons(filterText = "") {
-    const filter = filterText.trim().toLowerCase();
-    container.innerHTML = "";
+      document.querySelectorAll('.sound-btn').forEach(btn => {
+        btn.addEventListener('click', async (e) => {
+          // Resume audio context on user gesture (for browsers that require it)
+          if(audioCtx.state === 'suspended') await audioCtx.resume();
+          const name = btn.dataset.sound;
+          const freqs = { kick: 98, snare: 220, hat: 4000, fx: 620 };
+          playTone(freqs[name] || 440);
 
-    const matched = files.filter(file => {
-      const label = labelFromFile(file).toLowerCase();
-      return label.includes(filter);
-    });
-
-    if (matched.length === 0) {
-      noResults.style.display = "block";
-    } else {
-      noResults.style.display = "none";
-      matched.forEach(file => {
-        container.appendChild(createButton(file));
+          // Quick press visual
+          btn.classList.add('active');
+          setTimeout(()=>btn.classList.remove('active'), 220);
+        });
       });
-    }
-  }
+    });
 
-  // Initial render
-  renderButtons();
-  loading.style.display = "none";
-
-  // Search input: immediate filtering (debounce optional)
-  let debounceTimer = null;
-  searchInput.addEventListener("input", (e) => {
-    // small debounce for smoother typing
-    if (debounceTimer) clearTimeout(debounceTimer);
-    debounceTimer = setTimeout(() => {
-      renderButtons(e.target.value);
-    }, 120);
-  });
-
-  // Stop button
-  stopBtn.onclick = () => {
-    if (currentAudio) {
-      currentAudio.pause();
-      currentAudio.currentTime = 0;
-    }
-  };
-
-  // Optional: focus search on load for quick typing
-  searchInput.focus();
-})();
-    </script>
+    // Clean up Vanta on page unload
+    window.addEventListener('beforeunload', () => { if(vantaEffect) vantaEffect.destroy(); });
+  </script>
 </body>
 </html>
