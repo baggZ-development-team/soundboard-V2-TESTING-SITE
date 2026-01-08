@@ -92,6 +92,7 @@
                 const displayName = file.split(".")[0].replace(/[_-]/g, " ");
                 btn.textContent = displayName;
                 btn.dataset.searchText = displayName.toLowerCase();
+                btn.classList.add("glass");
 
                 const audio = new Audio(`audio/${file}`);
                 
