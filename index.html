@@ -1,158 +1,103 @@
-<!DOCTYPE html>
-<html lang="en-GB">
-<head>
-    <!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-FWZLJYXDTE"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
+@import url('https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,100..700;1,100..700&display=swap');
 
-  gtag('config', 'G-FWZLJYXDTE');
-</script>
-    <meta charset="utf-8" />
-    <title>Soundboard</title>
-    <link rel="stylesheet" href="style.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/vanta@latest/dist/vanta.fog.min.js"></script>
-</head>
-<body id="vanta-background">
-    <h1>baggZ Soundboard</h1>
-    <h3 id="loading">If a sound isn't working wait a second.</h3>
+body {
+    margin: 0;
+    padding: 20px;
+    font-family: Roboto Mono, "monospace";
+    min-height: 100vh;
+    position: relative;
+}
 
-    <div id="search-container">
-        <input type="text" id="searchBar" placeholder="Search sounds...">
-    </div>
+#vanta-background {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -1;
+}
 
-    <button id="stopBtn">Stop</button>
+body > * {
+    position: relative;
+    z-index: 1;
+}
 
-    <div id="buttons" display="none"></div>
+button {
+    padding: 10px;
+    color: rgb(255, 255, 255);
+    background-color: rgba(255, 255, 255, 0.13);
+    border-radius: 5px;
+    margin: 2px;
+    border-width: 0px;
+    cursor: pointer;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+}
 
-    <!-- SVG DISTORTION FILTER -->
-    <svg width="0" height="0" style="position:absolute">
-        <defs>
-            <filter id="glass-distortion" x="0%" y="0%" width="100%" height="100%">
-                <feTurbulence
-                    type="fractalNoise"
-                    baseFrequency="0.01 0.01"
-                    numOctaves="2"
-                    seed="42"
-                    result="noise"
-                />
-                <feGaussianBlur in="noise" stdDeviation="1.5" result="blurred" />
-                <feDisplacementMap
-                    in="SourceGraphic"
-                    in2="blurred"
-                    scale="60"
-                    xChannelSelector="R"
-                    yChannelSelector="G"
-                />
-            </filter>
-        </defs>
-    </svg>
+h1, h3 {
+    color: white;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+}
 
-    <script>
-        // Vibrant color palette
-        const vibrantColors = [
-            0xff006e, // Hot Pink
-            0x8338ec, // Purple
-            0x3a86ff, // Bright Blue
-            0x06ffa5, // Cyan
-            0xffbe0b, // Yellow
-            0xfb5607, // Orange
-            0xff006e, // Magenta
-            0x8338ec, // Violet
-            0x06ffa5, // Aqua
-            0xff006e, // Pink
-            0x3a86ff, // Electric Blue
-            0xffbe0b, // Gold
-            0xfb5607, // Red Orange
-            0x8338ec, // Indigo
-            0x06ffa5, // Mint
-        ];
+#search-container {
+    margin: 20px 0;
+}
 
-        // Initialize Vanta Fog with random vibrant colors
-        function initVanta() {
-            const baseColor = vibrantColors[Math.floor(Math.random() * vibrantColors.length)];
-            const highlightColor = vibrantColors[Math.floor(Math.random() * vibrantColors.length)];
-            const midColor = vibrantColors[Math.floor(Math.random() * vibrantColors.length)];
+#searchBar {
+    padding: 12px 20px;
+    width: 100%;
+    max-width: 500px;
+    font-size: 16px;
+    border-radius: 25px;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    background-color: rgba(255, 255, 255, 0.15);
+    color: white;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    font-family: Roboto Mono, "monospace";
+    outline: none;
+    transition: all 0.3s;
+}
 
-            VANTA.FOG({
-                el: "#vanta-background",
-                mouseControls: true,
-                touchControls: true,
-                gyroControls: false,
-                minHeight: 200.00,
-                minWidth: 200.00,
-                highlightColor: highlightColor,
-                baseColor: baseColor,
-                midColor: midColor,
-                blurFactor: 0.47,
-                speed: 1.5,
-                zoom: 0.9
-            });
-        }
+#searchBar::placeholder {
+    color: rgba(255, 255, 255, 0.7);
+}
 
-        // Initialize Vanta after page load
-        window.addEventListener('load', initVanta);
+#searchBar:focus {
+    border-color: rgba(255, 255, 255, 0.6);
+    background-color: rgba(255, 255, 255, 0.25);
+    box-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
+}
 
-        // Search functionality
-        (async () => {
-            const res = await fetch("Audios.json");
-            const data = await res.json();
+#stopBtn {
+    margin-bottom: 10px;
+    font-size: larger;
+    background-color: rgba(255, 55, 55, 0.586);
+}
 
-            const stopBtn = document.getElementById("stopBtn");
-            const container = document.getElementById("buttons");
-            const searchBar = document.getElementById("searchBar");
-            const loading = document.getElementById("loading");
+/* Scrollable buttons container */
+#buttons {
+    max-height: calc(100vh - 250px);
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding-right: 10px;
+}
 
-            let currentAudio = null;
-            let allButtons = [];
+/* Custom scrollbar styling */
+#buttons::-webkit-scrollbar {
+    width: 8px;
+}
 
-            // Create buttons
-            data.files.forEach(file => {
-                const btn = document.createElement("button");
-                const displayName = file.split(".")[0].replace(/[_-]/g, " ");
-                btn.textContent = displayName;
-                btn.dataset.searchText = displayName.toLowerCase();
+#buttons::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+}
 
-                const audio = new Audio(`audio/${file}`);
-                
-                btn.onclick = () => {
-                    if (currentAudio && currentAudio !== audio) {
-                        currentAudio.pause();
-                        currentAudio.currentTime = 0;
-                    }
-                    currentAudio = audio;
-                    audio.play();
-                };
+#buttons::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 10px;
+}
 
-                container.appendChild(btn);
-                allButtons.push(btn);
-            });
-
-            // Hide loading message after buttons are created
-            loading.style.display = "none";
-
-            // Search functionality
-            searchBar.addEventListener("input", (e) => {
-                const searchTerm = e.target.value.toLowerCase();
-                allButtons.forEach(btn => {
-                    if (btn.dataset.searchText.includes(searchTerm)) {
-                        btn.style.display = "inline-block";
-                    } else {
-                        btn.style.display = "none";
-                    }
-                });
-            });
-
-            stopBtn.onclick = () => {
-                if (currentAudio) {
-                    currentAudio.pause();
-                    currentAudio.currentTime = 0;
-                }
-            };
-        })();
-    </script>
-</body>
-</html>
+#buttons::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.5);
+}
